@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Упражнения для Дмитрия</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #eef2f7; margin: 0; padding: 0; }
+        h1 { text-align: center; color: #1a1a1a; margin: 60px 0 30px; }
+        .status-container { position: sticky; top: 0; background: #eef2f7; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #ccc; z-index: 100; }
+        .status-bar { flex: 1; background: #d1d5db; height: 28px; border-radius: 14px; overflow: hidden; margin-right: 20px; position: relative; }
+        .status-bar-inner { height: 100%; width: 0%; background: #2a3f66; transition: width 0.3s; }
+        .status-text { position: absolute; width: 100%; text-align: center; line-height: 28px; color: #fff; font-weight: bold; }
+        .status-count { font-weight: bold; color: #1a1a1a; }
+        .exercise { background: #fff; border-radius: 12px; padding: 24px; margin: 20px auto; max-width: 800px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .exercise.hidden { display: none; }
+        .instruction { font-weight: bold; margin-bottom: 16px; }
+        .sentence { margin: 16px 0; }
+        select, input[type=radio] + label { font-size: 16px; margin-right: 10px; }
+        select { padding: 6px; border-radius: 4px; }
+        .correct { background: #daf5dc !important; }
+        .incorrect { background: #f5dada !important; }
+        .btn-check, .btn-primary { background: #2a3f66; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; margin-top: 10px; }
+        .btn-check:hover, .btn-primary:hover { background: #1e2a4c; }
+        #finish-btn { display: block; margin: 20px auto; }
+        #result { text-align: center; font-weight: bold; margin: 20px; }
+        .radio-option { margin: 5px 0; }
+        input[type="radio"] { margin-right: 5px; }
+        .transformation { margin-bottom: 15px; }
+        .matching-item { display: flex; align-items: center; margin-bottom: 10px; }
+        .matching-item select { margin-left: 10px; }
+        .true-false label { margin-left: 5px; margin-right: 15px; }
+        input[type="text"] { padding: 6px; border-radius: 4px; border: 1px solid #ccc; margin-left: 5px; width: 120px; }
+        .error-correction { display: flex; align-items: center; }
+        .error-correction select { margin-left: 10px; }
+    </style>
+</head>
+
+<body>
+    <div class="status-container">
+        <div class="status-bar"><div id="status-inner" class="status-bar-inner"></div><div id="status-text" class="status-text">0%</div></div>
+        <div id="status-count" class="status-count">0/0</div>
+    </div>
+
+    <h1>Упражнения для Дмитрия</h1>
+
+    <div id="exercises"></div>
+
+    <button id="finish-btn" class="btn-primary">Завершить</button>
+
+    <div id="result"></div>
+
+    <script>
+        // Разные типы упражнений для отработки темы "used to"
+        const exercises = [
+            { 
+                instr: 'Упражнение 1: Выберите правильную форму.', 
+                type: 'radio',
+                items: [
+                    { 
+                        text: 'When I was a child, I ___ play in the street with my friends.',
+                        options: ['used to', 'use to', 'did used to', 'used'],
+                        answer: 'used to' 
+                    },
+                    { 
+                        text: 'She ___ eat meat, but now she\'s vegetarian.',
+                        options: ['did used to', 'used to', 'use to', 'was used to'],
+                        answer: 'used to' 
+                    },
+                    { 
+                        text: '___ you use to ride a bike to school?',
+                        options: ['Did', 'Do', 'Were', 'Are'],
+                        answer: 'Did' 
+                    },
+                    { 
+                        text: 'They ___ live in London, but they moved to Manchester last year.',
+                        options: ['use to', 'used to', 'were used to', 'using to'],
+                        answer: 'used to' 
+                    },
+                    { 
+                        text: 'He ___ play football when he was younger.',
+                        options: ['didn\'t used to', 'wasn\'t use to', 'didn\'t use to', 'not used to'],
+                        answer: 'didn\'t use to' 
+                    }
+                ]
+            },
+            { 
+                instr: 'Упражнение 2: Преобразуйте предложения, используя "used to" или "didn\'t use to".', 
+                type: 'transformation',
+                items: [
+                    { 
+                        text: 'I played the piano when I was young. -> I ___ the piano when I was young.',
+                        answer: 'used to play' 
+                    },
+                    { 
+                        text: 'My brother never ate vegetables before. -> My brother ___ vegetables before.',
+                        answer: 'didn\'t use to eat' 
+                    },
+                    { 
+                        text: 'She worked in a bank five years ago. -> She ___ in a bank five years ago.',
+                        answer: 'used to work' 
+                    },
+                    { 
+                        text: 'We didn\'t have a car in the past. -> We ___ a car in the past.',
+                        answer: 'didn\'t use to have' 
+                    },
+                    { 
+                        text: 'Did you visit your grandparents often? -> ___ your grandparents often?',
+                        answer: 'Did you use to visit' 
+                    }
+                ]
+            },
+            { 
+                instr: 'Упражнение 3: Соотнесите начало предложения с подходящим окончанием.', 
+                type: 'matching',
+                items: [
+                    { 
+                        text: 'He used to',
+                        options: ['play football on weekends.', 'likes football a lot now.', 'is playing football right now.', 'will play football tomorrow.'],
+                        answer: 'play football on weekends.' 
+                    },
+                    { 
+                        text: 'I didn\'t use to',
+                        options: ['like coffee, but now I drink it every day.', 'am drinking coffee.', 'liked coffee before.', 'drinks coffee all the time.'],
+                        answer: 'like coffee, but now I drink it every day.' 
+                    },
+                    { 
+                        text: 'Did you use to',
+                        options: ['live in the countryside?', 'living in the countryside?', 'are living in the countryside?', 'lives in the countryside?'],
+                        answer: 'live in the countryside?' 
+                    },
+                    { 
+                        text: 'They used to',
+                        options: ['watch movies every weekend.', 'watching movies every weekend.', 'watched movies yesterday.', 'are watching a movie.'],
+                        answer: 'watch movies every weekend.' 
+                    },
+                    { 
+                        text: 'She didn\'t use to',
+                        options: ['cook for herself, but now she does.', 'cooked yesterday.', 'cooks very well.', 'cooking now.'],
+                        answer: 'cook for herself, but now she does.' 
+                    }
+                ]
+            },
+            { 
+                instr: 'Упражнение 4: True or False. Определите, верно ли использование "used to" в предложениях.', 
+                type: 'true-false',
+                items: [
+                    { 
+                        text: '"I use to play tennis" - правильная форма для описания регулярных действий в прошлом.',
+                        answer: false 
+                    },
+                    { 
+                        text: '"Did you use to swim?" - правильная форма вопроса о регулярных действиях в прошлом.',
+                        answer: true 
+                    },
+                    { 
+                        text: '"He didn\'t used to smoke" - правильная отрицательная форма.',
+                        answer: false 
+                    },
+                    { 
+                        text: '"They used to live in Paris" - правильная форма для описания состояния в прошлом.',
+                        answer: true 
+                    },
+                    { 
+                        text: '"We are used to wake up early" и "We used to wake up early" имеют одинаковое значение.',
+                        answer: false 
+                    }
+                ]
+            },
+            { 
+                instr: 'Упражнение 5: Заполните пропуски, используя "used to", "didn\'t use to" или "did...use to".', 
+                type: 'fill-in',
+                items: [
+                    { 
+                        text: 'I _____ be afraid of dogs, but now I have one as a pet.',
+                        answer: 'used to' 
+                    },
+                    { 
+                        text: '_____ your father _____ work in this factory?',
+                        answer: 'Did, use to' 
+                    },
+                    { 
+                        text: 'She _____ have long hair when she was a teenager.',
+                        answer: 'used to' 
+                    },
+                    { 
+                        text: 'We _____ live in an apartment, but now we have our own house.',
+                        answer: 'used to' 
+                    },
+                    { 
+                        text: 'They _____ speak English at home, but now they do.',
+                        answer: 'didn\'t use to' 
+                    }
+                ]
+            },
+            { 
+                instr: 'Упражнение 6: Найдите и исправьте ошибку в предложениях.', 
+                type: 'error-correction',
+                items: [
+                    { 
+                        text: 'I used to played football every weekend.',
+                        options: ['played → play', 'used to → use to', 'used to → was used to', 'нет ошибки'],
+                        answer: 'played → play' 
+                    },
+                    { 
+                        text: 'Did she used to study French at school?',
+                        options: ['Did → Do', 'used to → use to', 'study → studied', 'нет ошибки'],
+                        answer: 'used to → use to' 
+                    },
+                    { 
+                        text: 'They didn\'t used to eat much fast food.',
+                        options: ['didn\'t → don\'t', 'used to → use to', 'eat → ate', 'нет ошибки'],
+                        answer: 'used to → use to' 
+                    },
+                    { 
+                        text: 'He use to wake up early in the morning.',
+                        options: ['use to → used to', 'wake → waking', 'wake → woke', 'нет ошибки'],
+                        answer: 'use to → used to' 
+                    },
+                    { 
+                        text: 'We were used to live in the country.',
+                        options: ['were used to → used to', 'live → living', 'were → was', 'нет ошибки'],
+                        answer: 'were used to → used to' 
+                    }
+                ]
+            }
+        ];
+
+        let total = 0, correct = 0;
+
+        exercises.forEach(ex => total += ex.items.length);
+
+        document.getElementById('status-count').textContent = `0/${total}`;
+
+        const exCont = document.getElementById('exercises');
+
+        exercises.forEach((ex, i) => {
+            const card = document.createElement('div'); 
+            card.className = 'exercise' + (i ? ' hidden' : '');
+
+            const h = document.createElement('div'); 
+            h.className = 'instruction'; 
+            h.textContent = ex.instr; 
+            card.appendChild(h);
+
+            ex.items.forEach((it, j) => {
+                const div = document.createElement('div'); 
+                div.className = 'sentence';
+                
+                // Разные типы рендеринга в зависимости от типа упражнения
+                if (ex.type === 'radio') {
+                    div.appendChild(document.createTextNode(it.text));
+                    div.appendChild(document.createElement('br'));
+                    
+                    it.options.forEach((opt, k) => {
+                        const radioDiv = document.createElement('div');
+                        radioDiv.className = 'radio-option';
+                        
+                        const radio = document.createElement('input');
+                        radio.type = 'radio';
+                        radio.name = `radio_${i}_${j}`;
+                        radio.value = opt;
+                        radio.dataset.answer = it.answer;
+                        
+                        const label = document.createElement('label');
+                        label.textContent = opt;
+                        
+                        radioDiv.appendChild(radio);
+                        radioDiv.appendChild(label);
+                        div.appendChild(radioDiv);
+                    });
+                }
+                else if (ex.type === 'transformation') {
+                    div.className = 'transformation';
+                    div.appendChild(document.createTextNode(it.text));
+                    div.appendChild(document.createElement('br'));
+                    
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.dataset.answer = it.answer;
+                    input.placeholder = 'Введите ответ';
+                    div.appendChild(input);
+                }
+                else if (ex.type === 'matching') {
+                    div.className = 'matching-item';
+                    div.appendChild(document.createTextNode(it.text + ' '));
+                    
+                    const sel = document.createElement('select');
+                    sel.dataset.answer = it.answer;
+                    
+                    const ph = document.createElement('option');
+                    ph.value = '';
+                    ph.text = 'Выберите окончание';
+                    sel.appendChild(ph);
+                    
+                    it.options.forEach(opt => {
+                        const oEl = document.createElement('option');
+                        oEl.value = opt;
+                        oEl.text = opt;
+                        sel.appendChild(oEl);
+                    });
+                    
+                    div.appendChild(sel);
+                }
+                else if (ex.type === 'true-false') {
+                    div.appendChild(document.createTextNode(it.text));
+                    div.appendChild(document.createElement('br'));
+                    
+                    const trueRadio = document.createElement('input');
+                    trueRadio.type = 'radio';
+                    trueRadio.name = `tf_${i}_${j}`;
+                    trueRadio.value = 'true';
+                    trueRadio.dataset.answer = it.answer.toString();
+                    
+                    const trueLabel = document.createElement('label');
+                    trueLabel.textContent = 'True';
+                    
+                    const falseRadio = document.createElement('input');
+                    falseRadio.type = 'radio';
+                    falseRadio.name = `tf_${i}_${j}`;
+                    falseRadio.value = 'false';
+                    falseRadio.dataset.answer = it.answer.toString();
+                    
+                    const falseLabel = document.createElement('label');
+                    falseLabel.textContent = 'False';
+                    
+                    div.appendChild(trueRadio);
+                    div.appendChild(trueLabel);
+                    div.appendChild(falseRadio);
+                    div.appendChild(falseLabel);
+                }
+                else if (ex.type === 'fill-in') {
+                    // Заменяем подчеркивания на поля ввода
+                    let parts = it.text.split('_____');
+                    for (let p = 0; p < parts.length; p++) {
+                        div.appendChild(document.createTextNode(parts[p]));
+                        
+                        if (p < parts.length - 1) {
+                            const input = document.createElement('input');
+                            input.type = 'text';
+                            input.dataset.answer = p === 0 ? it.answer : it.answer.split(', ')[p];
+                            input.placeholder = 'Введите';
+                            div.appendChild(input);
+                        }
+                    }
+                }
+                else if (ex.type === 'error-correction') {
+                    div.className = 'error-correction';
+                    div.appendChild(document.createTextNode(it.text + ' '));
+                    
+                    const sel = document.createElement('select');
+                    sel.dataset.answer = it.answer;
+                    
+                    const ph = document.createElement('option');
+                    ph.value = '';
+                    ph.text = 'Выберите исправление';
+                    sel.appendChild(ph);
+                    
+                    it.options.forEach(opt => {
+                        const oEl = document.createElement('option');
+                        oEl.value = opt;
+                        oEl.text = opt;
+                        sel.appendChild(oEl);
+                    });
+                    
+                    div.appendChild(sel);
+                }
+                
+                card.appendChild(div);
+            });
+
+            const btn = document.createElement('button'); 
+            btn.className = 'btn-check'; 
+            btn.textContent = 'Проверить';
+
+            btn.addEventListener('click', () => {
+                let exCorrect = 0;
+                let exTotal = ex.items.length;
+                
+                if (ex.type === 'radio') {
+                    card.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+                        const answerElement = radio.closest('.sentence');
+                        if (radio.value === radio.dataset.answer) {
+                            answerElement.classList.add('correct');
+                            exCorrect++;
+                        } else {
+                            answerElement.classList.add('incorrect');
+                        }
+                    });
+                }
+                else if (ex.type === 'transformation') {
+                    card.querySelectorAll('input[type="text"]').forEach(input => {
+                        if (input.value.trim().toLowerCase() === input.dataset.answer.toLowerCase()) {
+                            input.classList.add('correct');
+                            exCorrect++;
+                        } else {
+                            input.classList.add('incorrect');
+                        }
+                        input.disabled = true;
+                    });
+                }
+                else if (ex.type === 'matching') {
+                    card.querySelectorAll('select').forEach(sel => {
+                        if (sel.value === sel.dataset.answer) {
+                            sel.classList.add('correct');
+                            exCorrect++;
+                        } else {
+                            sel.classList.add('incorrect');
+                        }
+                        sel.disabled = true;
+                    });
+                }
+                else if (ex.type === 'true-false') {
+                    const questions = new Set();
+                    card.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+                        const question = radio.name;
+                        if (!questions.has(question)) {
+                            questions.add(question);
+                            const answerElement = radio.closest('.sentence');
+                            if (radio.value === radio.dataset.answer) {
+                                answerElement.classList.add('correct');
+                                exCorrect++;
+                            } else {
+                                answerElement.classList.add('incorrect');
+                            }
+                        }
+                    });
+                }
+                else if (ex.type === 'fill-in') {
+                    card.querySelectorAll('input[type="text"]').forEach(input => {
+                        if (input.value.trim().toLowerCase() === input.dataset.answer.toLowerCase()) {
+                            input.classList.add('correct');
+                            exCorrect++;
+                        } else {
+                            input.classList.add('incorrect');
+                        }
+                        input.disabled = true;
+                    });
+                }
+                else if (ex.type === 'error-correction') {
+                    card.querySelectorAll('select').forEach(sel => {
+                        if (sel.value === sel.dataset.answer) {
+                            sel.classList.add('correct');
+                            exCorrect++;
+                        } else {
+                            sel.classList.add('incorrect');
+                        }
+                        sel.disabled = true;
+                    });
+                }
+                
+                correct += exCorrect;
+                btn.disabled = true;
+
+                if (i < exercises.length - 1)
+                    document.querySelectorAll('.exercise')[i+1].classList.remove('hidden');
+
+                update();
+            });
+
+            card.appendChild(btn);
+            exCont.appendChild(card);
+        });
+
+        function update() {
+            const pct = Math.round((correct/total)*100);
+            document.getElementById('status-inner').style.width = pct + '%';
+            document.getElementById('status-text').textContent = pct + '%';
+            document.getElementById('status-count').textContent = `${correct}/${total}`;
+        }
+
+        document.getElementById('finish-btn').addEventListener('click', () => {
+            const pct = Math.round((correct/total)*100);
+            let grade;
+            if (pct>=90) grade='A'; 
+            else if (pct>=80) grade='B'; 
+            else if (pct>=70) grade='C'; 
+            else if (pct>=60) grade='D'; 
+            else if (pct>=50) grade='E'; 
+            else grade='F';
+
+            document.getElementById('result').textContent = `Результат: ${correct}/${total} (${pct}%). Оценка: ${grade}. Пришли фотографию данного результата учителю.`;
+        });
+    </script>
+</body>
+</html>
